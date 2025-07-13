@@ -21,7 +21,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt install -y zip unzip openjdk-17-jdk python3-pip libgl1-mesa-dev libgles2-mesa-dev
+          sudo apt update
+          sudo apt install -y zip unzip openjdk-17-jdk python3-pip libgl1-mesa-dev libgles2-mesa-dev adb
+          sudo apt install -y android-sdk android-sdk-platform-tools
           pip install buildozer cython kivy pyrebase4
 
       - name: Initialize Buildozer
