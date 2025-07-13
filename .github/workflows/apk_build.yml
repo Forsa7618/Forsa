@@ -1,4 +1,4 @@
-name: Build APK for Forsa_PS App
+name: Build APK using Docker (Buildozer)
 
 on:
   push:
@@ -7,38 +7,21 @@ on:
 
 jobs:
   build:
-    name: Build APK on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
+      - name: Use Buildozer Docker Image to Build APK
         run: |
           sudo apt update
-          sudo apt install -y zip unzip openjdk-17-jdk python3-pip libgl1-mesa-dev libgles2-mesa-dev adb
-          sudo apt install -y android-sdk android-sdk-platform-tools
-          pip install buildozer cython kivy pyrebase4
-
-      - name: Initialize Buildozer
-        run: |
-          buildozer init || echo "Buildozer already initialized"
-
-      - name: Modify buildozer.spec
-        run: |
-          sed -i 's/^requirements = .*/requirements = python3,kivy,pyrebase4/' buildozer.spec
-          sed -i 's/^package.name = .*/package.name = forsa_ps/' buildozer.spec
-          sed -i 's/^package.domain = .*/package.domain = org.forsa.ps/' buildozer.spec
-
-      - name: Build APK
-        run: |
-          buildozer -v android debug
+          sudo apt install -y docker.io
+          docker run --rm -v ${{ github.workspace }}:/home/user/hostcwd kivy/buildozer bash -c "
+            cd /home/user/hostcwd &&
+            pip install -r requirements.txt || true &&
+            buildozer android debug
+          "
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
